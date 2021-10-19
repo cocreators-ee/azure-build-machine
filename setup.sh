@@ -314,6 +314,7 @@ function setup_prerequisites {
     docker-ce-cli \
     g++ \
     gcc \
+    golang-1.16 \
     google-cloud-sdk \
     google-cloud-sdk-firestore-emulator \
     libffi-dev \
@@ -584,7 +585,8 @@ export LC_ALL="C.UTF-8"
 export LANG="C.UTF-8"
 export DEBIAN_FRONTEND="noninteractive"
 export TZ="UTC"
-export PATH="/root/.local/bin:$PATH"
+export GOPATH="$HOME/go"
+export PATH="/root/.local/bin:$GOHOME/bin:$PATH"
 
 $ENV_SETUP
 EOF
