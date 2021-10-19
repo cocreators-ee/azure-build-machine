@@ -33,8 +33,6 @@ export PATH="/root/.local/bin:$PATH"
 # START SCRIPT LOGIC #
 # ------------------ #
 
-start_time="$(date +%s)"
-
 function error {
   local msg="$*"
 
@@ -111,6 +109,11 @@ function validate_args {
           error "$FAST_DRIVE not found"
           valid=0
         fi
+    fi
+
+    if [[ "$FAST_DRIVE" == "" && -e /dev/sdb ]]; then
+      echo "Found /dev/sdb but no --fast-drive configured, are you sure you didn't forget something?"
+      sleep 3
     fi
 
     if [[ "$valid" == "0" ]]; then
@@ -219,7 +222,7 @@ EOF
 function configure_updates {
   # Use local mirrors
   label "Configuring mirrors"
-  
+
   # Why the fuck does every vendor customize these and then also fuck it up?
   cat << EOF > /etc/apt/sources.list
 deb mirror://mirrors.ubuntu.com/mirrors.txt focal main restricted
@@ -602,6 +605,9 @@ echo ""
 
 check_root
 validate_args
+
+start_time="$(date +%s)"
+
 set_hostname
 configure_dpkg
 configure_updates
