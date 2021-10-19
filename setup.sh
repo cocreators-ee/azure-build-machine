@@ -567,6 +567,8 @@ function setup_agent {
 
       echo "Starting agent service..."
       ./svc.sh start
+
+      ln -s bin/runsvc.sh .
       popd || exit 1
   done
 
@@ -586,7 +588,7 @@ export LANG="C.UTF-8"
 export DEBIAN_FRONTEND="noninteractive"
 export TZ="UTC"
 export GOPATH="$HOME/go"
-export PATH="/root/.local/bin:$GOHOME/bin:$PATH"
+export PATH="/root/.local/bin:/usr/lib/go-1.16/bin/:$GOHOME/bin:$PATH"
 
 $ENV_SETUP
 EOF
