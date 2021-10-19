@@ -219,8 +219,11 @@ EOF
 function configure_updates {
   # Use local mirrors
   label "Configuring mirrors"
-  sed -i -e 's/http:\/\/archive/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list
-  sed -i -e 's/http:\/\/nova.clouds.archive/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list
+  sed -i -e 's@http://archive@mirror://mirrors@g' \
+         -e 's@/ubuntu/@/mirrors.txt@g' \
+         -e 's@/ubuntu@/mirrors.txt@g' /etc/apt/sources.list
+
+  sed -i -e 's@http://nova.clouds.archive@mirror://mirrors@' /etc/apt/sources.list
 
   label "Updating APT"
   apt-get update
