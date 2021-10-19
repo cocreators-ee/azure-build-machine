@@ -219,11 +219,21 @@ EOF
 function configure_updates {
   # Use local mirrors
   label "Configuring mirrors"
-  sed -i -e 's@http://archive@mirror://mirrors@g' \
-         -e 's@/ubuntu/@/mirrors.txt@g' \
-         -e 's@/ubuntu@/mirrors.txt@g' /etc/apt/sources.list
-
-  sed -i -e 's@http://nova.clouds.archive@mirror://mirrors@' /etc/apt/sources.list
+  
+  # Why the fuck does every vendor customize these and then also fuck it up?
+  cat << EOF > /etc/apt/sources.list
+deb mirror://mirrors.ubuntu.com/mirrors.txt focal main restricted
+deb mirror://mirrors.ubuntu.com/mirrors.txt focal multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt focal universe
+deb mirror://mirrors.ubuntu.com/mirrors.txt focal-updates main restricted
+deb mirror://mirrors.ubuntu.com/mirrors.txt focal-updates multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt focal-updates universe
+deb mirror://mirrors.ubuntu.com/mirrors.txt focal-backports main restricted universe multiverse
+deb http://security.ubuntu.com/ubuntu focal-security main restricted
+deb http://security.ubuntu.com/ubuntu focal-security multiverse
+deb http://security.ubuntu.com/ubuntu focal-security universe
+deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ focal main
+EOF
 
   label "Updating APT"
   apt-get update
