@@ -592,7 +592,7 @@ Wants=docker.service
 
 [Service]
 Environment='THRESHOLD=160 GB'
-ExecStart=/usr/local/bin/docuum --threshold ${THRESHOLD}
+ExecStart=/usr/local/bin/docuum --threshold \${THRESHOLD}
 Restart=on-failure
 
 [Install]
@@ -653,6 +653,7 @@ setup_az
 check_pat_token
 setup_fast_drive
 setup_agent
+setup_docuum
 setup_env
 
 label "Cleaning up"
