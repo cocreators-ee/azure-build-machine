@@ -591,7 +591,7 @@ After=docker.service
 Wants=docker.service
 
 [Service]
-Environment='THRESHOLD=160 GB'
+Environment='THRESHOLD=100 GB'
 ExecStart=/usr/local/bin/docuum --threshold \${THRESHOLD}
 Restart=on-failure
 
