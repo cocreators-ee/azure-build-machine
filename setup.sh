@@ -604,6 +604,16 @@ EOF
   systemctl start docuum
 }
 
+function setup_builder_prune_cron {
+  label "Setting up cronjob to prune BuildKit cache"
+  
+  cat << EOF > /etc/cron.hourly/docker_builder_prune
+docker builder prune --all --force --keep-storage '60 GB'
+EOF
+
+  chmod +x /etc/cron.hourly/docker_builder_prune
+}
+
 function setup_env {
   label "Setting up global environment"
 
@@ -654,6 +664,7 @@ check_pat_token
 setup_fast_drive
 setup_agent
 setup_docuum
+setup_builder_prune_cron
 setup_env
 
 label "Cleaning up"
