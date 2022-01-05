@@ -578,6 +578,32 @@ function setup_agent {
   popd || exit 1
 }
 
+function setup_docuum {
+  label "Setting up Docuum"
+  
+  echo "Installing Docuum"
+  curl https://raw.githubusercontent.com/stepchowfun/docuum/main/install.sh -LSfs | sh
+
+  cat << EOF > /etc/systemd/system/docuum.service
+[Unit]
+Description=Docuum
+After=docker.service
+Wants=docker.service
+
+[Service]
+Environment='THRESHOLD=160 GB'
+ExecStart=/usr/local/bin/docuum --threshold ${THRESHOLD}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+  systemctl daemon-reload
+  systemctl enable docuum
+  systemctl start docuum
+}
+
 function setup_env {
   label "Setting up global environment"
 
