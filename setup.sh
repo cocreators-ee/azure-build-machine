@@ -21,6 +21,7 @@ ORG=""
 PAT=""
 ENV_SETUP=""
 FAST_DRIVE=""
+SKIP_AGENT="no"
 
 # Generic global flags for predictability
 export LC_ALL="C.UTF-8"
@@ -70,6 +71,9 @@ while [ "$1" != "" ]; do
         --fast-drive)                   shift
                                         FAST_DRIVE=$1
                                         ;;
+        --skip-agent)                   shift
+                                        SKIP_AGENT="yes"
+                                        ;;
        * )                              error "Invalid argument: $1"
                                         exit 1
     esac
@@ -79,29 +83,31 @@ done
 function validate_args {
     local valid=1
 
-    if [[ "$AGENT_POOL" == "" ]]; then
-        error "No agent pool. Use --agent-pool to specify agent pool"
-        #valid=0
-    fi
+    if [[ "$SKIP_AGENT" == "no" ]]; then
+      if [[ "$AGENT_POOL" == "" ]]; then
+          error "No agent pool. Use --agent-pool to specify agent pool"
+          valid=0
+      fi
 
-    if [[ "$AGENT_NAME" == "" ]]; then
-        error "No agent name. Use --agent-name to specify agent name"
-        #valid=0
-    fi
+      if [[ "$AGENT_NAME" == "" ]]; then
+          error "No agent name. Use --agent-name to specify agent name"
+          valid=0
+      fi
 
-    if [[ "$ORG" == "" ]]; then
-        error "No Azure DevOps organization. Use --org to specify an organization"
-        #valid=0
-    fi
+      if [[ "$ORG" == "" ]]; then
+          error "No Azure DevOps organization. Use --org to specify an organization"
+          valid=0
+      fi
 
-    if [[ "$PAT" == "" ]]; then
-        error "No Personal Access Token. Use --pat to specify a Personal Access Token"
-        #valid=0
-    fi
+      if [[ "$PAT" == "" ]]; then
+          error "No Personal Access Token. Use --pat to specify a Personal Access Token"
+          valid=0
+      fi
 
-    if [[ "$AGENT_COUNT" == "" ]]; then
-        error "No agent count specified."
-        #valid=0
+      if [[ "$AGENT_COUNT" == "" ]]; then
+          error "No agent count specified."
+          valid=0
+      fi
     fi
 
     if [[ "$FAST_DRIVE" != "" ]]; then
@@ -660,9 +666,14 @@ setup_git
 setup_firewall
 setup_firestore_emulator
 setup_az
-#check_pat_token
 setup_fast_drive
-#setup_agent
+
+
+if [[ "$SKIP_AGENT" == "no" ]]; then
+  check_pat_token
+  setup_agent
+fi
+
 setup_docuum
 setup_builder_prune_cron
 setup_env
