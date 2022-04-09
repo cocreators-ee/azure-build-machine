@@ -290,6 +290,9 @@ function setup_prerequisites {
 
   # Python
   add-apt-repository -y ppa:deadsnakes/ppa
+  
+  # Go
+  add-apt-repository -y ppa:longsleep/golang-backports
 
   # Azure CLI
   curl -sL https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
@@ -314,7 +317,7 @@ function setup_prerequisites {
     docker-ce-cli \
     g++ \
     gcc \
-    golang-1.16 \
+    golang-1.18 \
     google-cloud-sdk \
     google-cloud-sdk-firestore-emulator \
     libffi-dev \
@@ -624,7 +627,7 @@ export LANG="C.UTF-8"
 export DEBIAN_FRONTEND="noninteractive"
 export TZ="UTC"
 export GOPATH="$HOME/go"
-export PATH="/root/.local/bin:/usr/lib/go-1.16/bin/:$GOHOME/bin:$PATH"
+export PATH="/root/.local/bin:/usr/lib/go-1.18/bin:$GOHOME/bin:$PATH"
 
 $ENV_SETUP
 EOF
