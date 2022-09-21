@@ -278,13 +278,13 @@ function setup_prerequisites {
   label "Enabling repos"
   # Docker
   if [ ! -f /usr/share/keyrings/docker-archive-keyring.gpg ]; then
-      curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+      curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/trusted.gpg.d/download.docker.com.gpg
   fi
 
   echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
 
   # Node
-  curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
+  curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
   curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/dl.yarnpkg.com.gpg
   echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
 
