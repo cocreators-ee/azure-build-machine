@@ -8,7 +8,7 @@ export UNATTENDED_UPGRADES="/etc/apt/apt.conf.d/50unattended-upgrades"
 export UNATTENDED_UPGRADE_MARKER="# UNATTENDED UPGRADES"
 export JAVA_VERSION="16"
 export JAVA_HASH="7863447f0ab643c585b9bdebf67c69db"
-export POETRY_VERSION="1.1.11"
+export POETRY_VERSION="1.2.1"
 export PATH="/root/.local/bin:$PATH"
 export AGENT_ALLOW_RUNASROOT="1"
 
@@ -281,11 +281,11 @@ function setup_prerequisites {
       curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
   fi
 
-  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+  echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
 
   # Node
   curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
-  curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+  curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/dl.yarnpkg.com.gpg
   echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
 
   # Python
@@ -295,15 +295,15 @@ function setup_prerequisites {
   add-apt-repository -y ppa:longsleep/golang-backports
 
   # Azure CLI
-  curl -sL https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+  curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.microsoft.com.gpg
   add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main"
 
   # Google Cloud SDK
-  echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list
-  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+  echo "deb https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list
+  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/packages.cloud.google.com.gpg
 
   # .NET core
-  wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+  wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
   dpkg -i packages-microsoft-prod.deb
   rm packages-microsoft-prod.deb
 
@@ -317,16 +317,16 @@ function setup_prerequisites {
     docker-ce-cli \
     g++ \
     gcc \
-    golang-1.18 \
+    golang-1.19 \
     google-cloud-sdk \
     google-cloud-sdk-firestore-emulator \
     libffi-dev \
     libssl-dev \
     make \
     nodejs \
-    python3.9 \
-    python3.9-dev \
-    python3.9-venv \
+    python3.11 \
+    python3.11-dev \
+    python3.11-venv \
     aspnetcore-runtime-5.0 \
     yarn
 
@@ -346,7 +346,7 @@ function setup_prerequisites {
 
 function setup_python {
   label "Configuring Python"
-  update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
+  update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
   curl https://bootstrap.pypa.io/get-pip.py | python
 
   label "Installing Poetry"
@@ -357,7 +357,7 @@ function setup_python {
   pip install pre-commit
 
   label "Installing pipx"
-  python3.9 -m pip install --user -U pipx
+  python3.11 -m pip install --user -U pipx
   /root/.local/bin/pipx ensurepath
 }
 
@@ -627,7 +627,7 @@ export LANG="C.UTF-8"
 export DEBIAN_FRONTEND="noninteractive"
 export TZ="UTC"
 export GOPATH="$HOME/go"
-export PATH="/root/.local/bin:/usr/lib/go-1.18/bin:$GOHOME/bin:$PATH"
+export PATH="/root/.local/bin:/usr/lib/go-1.19/bin:$GOHOME/bin:$PATH"
 
 $ENV_SETUP
 EOF
