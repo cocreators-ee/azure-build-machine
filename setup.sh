@@ -327,7 +327,7 @@ function setup_prerequisites {
     python3.11 \
     python3.11-dev \
     python3.11-venv \
-    aspnetcore-runtime-5.0 \
+    aspnetcore-runtime-6.0 \
     yarn
 
   apt-get install -y --no-install-recommends \
