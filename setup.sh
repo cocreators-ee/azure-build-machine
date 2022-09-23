@@ -144,7 +144,7 @@ function disable_ipv6 {
   label "Disabling IPv6"
   
   sysctl -a | grep disable_ipv6 | sed -E 's@ = 0@ = 1@g' > /etc/sysctl.d/01-disable-ipv6.conf
-  sysctl -p
+  sysctl -p /etc/sysctl.d/01-disable-ipv6.conf
   
   sed -Ei 's@GRUB_CMDLINE_LINUX_DEFAULT=""@GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1"@g' /etc/default/grub
   update-grub
