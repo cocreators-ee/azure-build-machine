@@ -225,17 +225,16 @@ function configure_updates {
 
   # Why the fuck does every vendor customize these and then also fuck it up?
   cat << EOF > /etc/apt/sources.list
-deb mirror://mirrors.ubuntu.com/mirrors.txt focal main restricted
-deb mirror://mirrors.ubuntu.com/mirrors.txt focal multiverse
-deb mirror://mirrors.ubuntu.com/mirrors.txt focal universe
-deb mirror://mirrors.ubuntu.com/mirrors.txt focal-updates main restricted
-deb mirror://mirrors.ubuntu.com/mirrors.txt focal-updates multiverse
-deb mirror://mirrors.ubuntu.com/mirrors.txt focal-updates universe
-deb mirror://mirrors.ubuntu.com/mirrors.txt focal-backports main restricted universe multiverse
-deb http://security.ubuntu.com/ubuntu focal-security main restricted
-deb http://security.ubuntu.com/ubuntu focal-security multiverse
-deb http://security.ubuntu.com/ubuntu focal-security universe
-deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ focal main
+deb mirror://mirrors.ubuntu.com/mirrors.txt jammy main restricted
+deb mirror://mirrors.ubuntu.com/mirrors.txt jammy multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt jammy universe
+deb mirror://mirrors.ubuntu.com/mirrors.txt jammy-updates main restricted
+deb mirror://mirrors.ubuntu.com/mirrors.txt jammy-updates multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt jammy-updates universe
+deb mirror://mirrors.ubuntu.com/mirrors.txt jammy-backports main restricted universe multiverse
+deb http://security.ubuntu.com/ubuntu jammy-security main restricted
+deb http://security.ubuntu.com/ubuntu jammy-security multiverse
+deb http://security.ubuntu.com/ubuntu jammy-security universe
 EOF
 
   label "Updating APT"
@@ -278,7 +277,7 @@ function setup_prerequisites {
   label "Enabling repos"
   # Docker
   if [ ! -f /usr/share/keyrings/docker-archive-keyring.gpg ]; then
-      curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/trusted.gpg.d/download.docker.com.gpg
+      curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/download.docker.com.gpg
   fi
 
   echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
@@ -289,7 +288,7 @@ function setup_prerequisites {
   echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
 
   # Python
-  add-apt-repository -y ppa:deadsnakes/ppa
+  # add-apt-repository -y ppa:deadsnakes/ppa
   
   # Go
   add-apt-repository -y ppa:longsleep/golang-backports
@@ -324,9 +323,12 @@ function setup_prerequisites {
     libssl-dev \
     make \
     nodejs \
-    python3.11 \
-    python3.11-dev \
-    python3.11-venv \
+    python3 \
+    python3-venv \
+    python3-dev \
+    python3-pip \
+    pipx \
+    dotnet6 \
     aspnetcore-runtime-6.0 \
     yarn
 
@@ -346,7 +348,7 @@ function setup_prerequisites {
 
 function setup_python {
   label "Configuring Python"
-  update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+  update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
   curl https://bootstrap.pypa.io/get-pip.py | python
 
   label "Installing Poetry"
@@ -355,10 +357,6 @@ function setup_python {
 
   label "Installing pre-commit"
   pip install pre-commit
-
-  label "Installing pipx"
-  python3.11 -m pip install --user -U pipx
-  /root/.local/bin/pipx ensurepath
 }
 
 function setup_gcloud {
