@@ -140,6 +140,16 @@ function check_root {
   fi
 }
 
+function disable_ipv6 {
+  label "Disabling IPv6"
+  
+  sysctl -a | grep disable_ipv6 | sed -E 's@ = 0@ = 1@g' > /etc/sysctl.d/01-disable-ipv6.conf
+  sysctl -p
+  
+  sed -Ei 's@GRUB_CMDLINE_LINUX_DEFAULT=""@GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1"@g' /etc/default/grub
+  update-grub
+}
+
 function set_hostname {
   # Check for previous executions
   local old_host
@@ -649,6 +659,7 @@ validate_args
 
 start_time="$(date +%s)"
 
+disable_ipv6
 set_hostname
 configure_dpkg
 configure_updates
