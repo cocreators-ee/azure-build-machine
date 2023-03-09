@@ -11,7 +11,7 @@ RAM_MB = 4096
 # CPUS = 8  # Or override manually if you want
 
 Vagrant.configure("2") do |cfg|
-    cfg.vm.box = "aspyatkin/ubuntu-20.04-server"
+    cfg.vm.box = "generic/ubuntu-2204"
 
     # If you could pass args from vagrant CLI this might work
     # cfg.vm.provision "shell", path: "setup.sh"

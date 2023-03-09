@@ -1,17 +1,25 @@
-# Azure DevOps build machine setup tool
+# Build machine setup tool
+
+Supports agents for
+
+- Azure DevOps
+- Jetbrains Space
 
 Scripts to set up a lot of things you need for a decent build machine all in one go
 
 Quickstart:
 
 ```bash
-wget https://raw.githubusercontent.com/cocreators-ee/azure-build-machine/master/setup.sh -O - | sudo bash -s -- \
-  --org your_devops_org \
-  --agent-count 2 \
-  --pat your_personal_access_token
+wget https://raw.githubusercontent.com/cocreators-ee/build-machine/master/setup.sh -O - | sudo bash -s -- \
+  --azure-org your_devops_org \
+  --azure-agent-count 2 \
+  --azure-pat your_personal_access_token \
+  --space-agent-count 2 \
+  --space-
 ```
 
-But really, don't run this unless you really have read and understand [setup.sh](./setup.sh). What you should do is fork this repo, customize the script, and the command above to point to your repo, and then use that one instead.
+But really, don't run this unless you really have read and understand [setup.sh](./setup.sh). What you should do is fork
+this repo, customize the script, and the command above to point to your repo, and then use that one instead.
 
 
 ## Quick explanation
