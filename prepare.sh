@@ -155,6 +155,7 @@ function setup_prerequisites {
     openssh-client \
     software-properties-common \
     ufw \
+    zip \
     unzip \
     wget \
     | dotify
@@ -403,6 +404,15 @@ EOF
   fi
 }
 
+function setup_chrome {
+  label "Setting up Google Chrome"
+
+  wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+  dpkg -i google-chrome-stable_current_amd64.db > /dev/null 2>/dev/null || true
+  apt --fix-broken install -y | dotify
+
+}
+
 function setup_builder_prune_cron {
   label "Setting up cronjob to prune BuildKit cache"
 
@@ -449,5 +459,8 @@ setup_firestore_emulator
 setup_az
 setup_fast_drive
 setup_docuum
+setup_chrome
 setup_builder_prune_cron
 setup_env
+
+}
