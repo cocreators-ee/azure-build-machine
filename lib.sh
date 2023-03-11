@@ -57,6 +57,7 @@ function check_pat_token {
 
 function setup_azure_agent {
   label "Setting up Azure DevOps Pipelines Agent"
+  export AGENT_ALLOW_RUNASROOT="1"
 
   # A modified copy of
   # https://github.com/geekzter/azure-pipeline-agents/blob/master/scripts/agent/install_agent.sh
@@ -65,7 +66,7 @@ function setup_azure_agent {
   pushd "$HOME" || exit 1
 
   # Find old agent directories, remove agents from DevOps, uninstall service and delete folder
-  for old_agent_dir in "$HOME"/pipeline-agent-*; do
+  for old_agent_dir in "$HOME"/azure-agent-*; do
       if [ -f "$old_agent_dir/.agent" ]; then
           echo "Removing existing $(basename "$old_agent_dir")"
           pushd "$old_agent_dir" || exit 1
@@ -78,7 +79,11 @@ function setup_azure_agent {
   done
 
   # Get latest released version from GitHub
-  AGENT_VERSION=$(curl https://api.github.com/repos/microsoft/azure-pipelines-agent/releases/latest | jq ".name" | sed -E 's/.*"v([^"]+)".*/\1/')
+  if [[ "${AZURE_AGENT_VERSION:-}" == "" ]]; then
+    AGENT_VERSION=$(curl -q https://api.github.com/repos/microsoft/azure-pipelines-agent/releases/latest | jq ".name" | sed -E 's/.*"v([^"]+)".*/\1/')
+  else
+    AGENT_VERSION="$AZURE_AGENT_VERSION"
+  fi
   AGENT_PACKAGE="vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz"
   AGENT_URL="https://vstsagentpackage.azureedge.net/agent/${AGENT_VERSION}/${AGENT_PACKAGE}"
   PIPELINE_AGENT_TMPL="azure-pipelines-agent-${AGENT_VERSION}"
@@ -88,20 +93,26 @@ function setup_azure_agent {
 
   # Download the client
   echo "Dowloading from $AGENT_URL"
-  wget "$AGENT_URL" -O "$AGENT_PACKAGE"
+  wget -q "$AGENT_URL" -O "$AGENT_PACKAGE"
 
   echo "Creating pipeline agent template"
   mkdir "$PIPELINE_AGENT_TMPL"
   pushd "$PIPELINE_AGENT_TMPL" || exit 1
   echo "Extracting ${AGENT_PACKAGE} in $(pwd)..."
   tar zxf "$HOME/$AGENT_PACKAGE"
+
+  echo "Updating dependencies..."
+  sed -Ei "s@liblttng-ust0@liblttng-ust1@g" bin/installdependencies.sh
+  sed -Ei "s@libssl1.1@libssl3@g" bin/installdependencies.sh
+  sed -Ei "s@libicu67@libicu70@g" bin/installdependencies.sh
+
   echo "Installing dependencies..."
-  ./bin/installdependencies.sh
+  ./bin/installdependencies.sh | dotify
   popd || exit 1
 
   # Create desired amount of new agents
   for i in $(seq 1 "$AZURE_AGENT_COUNT"); do
-      PIPELINE_AGENT_DIR="$AZURE_AGENT_PATH/pipeline-agent-${i}"
+      PIPELINE_AGENT_DIR="$AZURE_AGENT_PATH/azure-agent-${i}"
 
       if [ -d "$PIPELINE_AGENT_DIR" ]; then
           echo "Deleting old $(basename "$PIPELINE_AGENT_DIR")"
@@ -122,16 +133,17 @@ function setup_azure_agent {
                   --pool "${AZURE_AGENT_POOL}" \
                   --agent "$AZURE_AGENT_NAME-${i}" \
                   --replace \
-                  --acceptTeeEula
+                  --acceptTeeEula \
+                  | dotify
 
       # Run as systemd service
       echo "Setting up agent to run as systemd service..."
-      ./svc.sh install root
+      ./svc.sh install root | dotify
 
       echo "Starting agent service..."
-      ./svc.sh start
+      ./svc.sh start | dotify
 
-      ln -s bin/runsvc.sh .
+      ln -sf bin/runsvc.sh .
       popd || exit 1
   done
 

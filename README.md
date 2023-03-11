@@ -7,16 +7,31 @@ Supports agents for
 
 Scripts to set up a lot of things you need for a decent build machine all in one go
 
-Quickstart:
+**Quickstart:**
+
+```bash
+wget https://raw.githubusercontent.com/cocreators-ee/build-machine/master/setup.sh -O - | sudo bash
+```
+
+**Also install Azure DevOps agents**:
 
 ```bash
 wget https://raw.githubusercontent.com/cocreators-ee/build-machine/master/setup.sh -O - | sudo bash -s -- \
   --azure-org your_devops_org \
   --azure-agent-count 2 \
-  --azure-pat your_personal_access_token \
-  --space-agent-count 2 \
-  --space-
+  --azure-pat your_personal_access_token
 ```
+
+**After `setup.sh` you can also install JetBrains Space workers**:
+
+```bash
+wget https://raw.githubusercontent.com/cocreators-ee/build-machine/master/setup_space_worker.sh -O - | sudo bash -s -- \
+  --serverUrl https://your_org.jetbrains.space \
+  --token abc123 \
+  --name your_worker_name
+```
+
+For JetBrains Space you need to first go to Administration -> Automation -> Add worker, to get the token. You can run the script multiple times if you want to register multiple workers on the same machine, just keep the names unique. 
 
 But really, don't run this unless you really have read and understand [setup.sh](./setup.sh). What you should do is fork
 this repo, customize the script, and the command above to point to your repo, and then use that one instead.
@@ -26,7 +41,6 @@ this repo, customize the script, and the command above to point to your repo, an
 
 Assuming an installed Ubuntu 20.04 base this sets up:
 
- - [Azure Pipelines Agent](https://github.com/microsoft/azure-pipelines-agent)
  - A recognizable hostname
  - Some `dpkg` configuration to make things more reliable and fast (disable man, etc.)
  - Unattended upgrades
@@ -42,6 +56,10 @@ Assuming an installed Ubuntu 20.04 base this sets up:
  - Some custom tools (gcrc)
  - Allows SSH through the firewall and nothing else
  - Enables Google Cloud Firestore emulator as a service
+
+May also be used to set up:
+ - [Azure Pipelines Agent](https://github.com/microsoft/azure-pipelines-agent)
+ - [JetBrains Space Worker](https://www.jetbrains.com/help/space/run-steps-in-external-workers.html)
 
 Now if this list didn't convince you that you should customize this to YOUR needs, well you probably shouldn't be using this tool.
 

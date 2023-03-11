@@ -3,17 +3,23 @@
 AGENT_ID="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 4 | head -n 1)"
 
 # Configuration
-export HOST="pipeline-agent-$AGENT_ID"
+export HOST="worker-$AGENT_ID"
 
-# Args
-AZURE_AGENT_PATH="$HOME/agents/"
-AZURE_AGENT_POOL="Default"
-AZURE_AGENT_NAME="$HOST"
-AZURE_AGENT_COUNT="1"
-AZURE_ORG=""
-AZURE_PAT=""
-ENV_SETUP=""
-FAST_DRIVE=""
+export ENV_SETUP=""
+export FAST_DRIVE=""
+
+# Azure DevOps configuration
+export AZURE_AGENT_PATH="$HOME/agents/"
+export AZURE_AGENT_POOL="Default"
+export AZURE_AGENT_NAME="$HOST"
+export AZURE_AGENT_COUNT="6"
+export AZURE_ORG=""
+export AZURE_PAT=""
+
+# Set to "" to install latest release after .NET 6 and OpenSSL 3 support is released
+# https://github.com/microsoft/azure-pipelines-agent/issues/3922
+export AZURE_AGENT_VERSION="3.217.0"
+
 
 # ------------------ #
 # START SCRIPT LOGIC #
@@ -22,30 +28,30 @@ FAST_DRIVE=""
 set -eu
 source ./lib.sh
 
-while [ "$1" != "" ]; do
+while [ "${1-}" != "" ]; do
     case $1 in
-        --azure-agent-name)                   shift
-                                        AZURE_AGENT_NAME=$1
+        --azure-agent-name)             shift
+                                        export AZURE_AGENT_NAME=$1
                                         ;;
-        --azure-agent-pool)                   shift
-                                        AZURE_AGENT_POOL=$1
+        --azure-agent-pool)             shift
+                                        export AZURE_AGENT_POOL=$1
                                         ;;
-        --azure-org)                          shift
-                                        AZURE_ORG=$1
+        --azure-org)                    shift
+                                        export AZURE_ORG=$1
                                         ;;
-        --azure-pat)                          shift
-                                        AZURE_PAT=$1
+        --azure-pat)                    shift
+                                        export AZURE_PAT=$1
                                         ;;
-        --azure-agent-count)                  shift
-                                        AZURE_AGENT_COUNT=$1
+        --azure-agent-count)            shift
+                                        export AZURE_AGENT_COUNT=$1
                                         ;;
         --env)                          shift
-                                        ENV_SETUP=$1
+                                        export ENV_SETUP=$1
                                         ;;
         --fast-drive)                   shift
-                                        FAST_DRIVE=$1
+                                        export FAST_DRIVE=$1
                                         ;;
-       * )                              error "Invalid argument: $1"
+        * )                             error "Invalid argument: $1"
                                         exit 1
     esac
     shift
@@ -53,30 +59,36 @@ done
 
 function validate_args {
     local valid=1
+    local azure_settings=5
 
     if [[ "$AZURE_AGENT_POOL" == "" ]]; then
         error "No agent pool. Use --azure-agent-pool to specify agent pool"
-        valid=0
+        azure_settings=$(($azure_settings-1))
     fi
 
     if [[ "$AZURE_AGENT_NAME" == "" ]]; then
         error "No agent name. Use --azure-agent-name to specify agent name"
-        valid=0
+        azure_settings=$(($azure_settings-1))
     fi
 
     if [[ "$AZURE_ORG" == "" ]]; then
         error "No Azure DevOps organization. Use --org to specify an organization"
-        valid=0
+        azure_settings=$(($azure_settings-1))
     fi
 
     if [[ "$AZURE_PAT" == "" ]]; then
         error "No Personal Access Token. Use --pat to specify a Personal Access Token"
-        valid=0
+        azure_settings=$(($azure_settings-1))
     fi
 
     if [[ "$AZURE_AGENT_COUNT" == "" ]]; then
         error "No agent count specified."
-        valid=0
+        azure_settings=$(($azure_settings-1))
+    fi
+
+    if [[ "$azure_settings" != "0" && "$azure_settings" != "5" ]]; then
+      echo "Azure configuration exists, but not all Azure settings are configured"
+      valid=0
     fi
 
     if [[ "$FAST_DRIVE" != "" ]]; then
@@ -141,9 +153,9 @@ validate_args
 start_time="$(date +%s)"
 
 set_hostname
-./prepare.sh
-check_pat_token
-setup_azure_agent
+#./prepare.sh
+[[ "$AZURE_PAT" != "" ]] && check_pat_token
+[[ "$AZURE_PAT" != "" ]] && setup_azure_agent
 setup_firewall
 
 label "Cleaning up"

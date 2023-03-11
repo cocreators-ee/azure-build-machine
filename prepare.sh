@@ -155,6 +155,7 @@ function setup_prerequisites {
     openssh-client \
     software-properties-common \
     ufw \
+    unzip \
     wget \
     | dotify
 
@@ -424,7 +425,7 @@ export LANG="C.UTF-8"
 export DEBIAN_FRONTEND="noninteractive"
 export TZ="UTC"
 export GOPATH="$HOME/go"
-export PATH="/root/.local/bin:/usr/lib/go-${GOLANG_VERSION}/bin:$GOPATH/bin:$PATH"
+export PATH="/root/.local/bin:/usr/lib/go-${GOLANG_VERSION}/bin:\$GOPATH/bin:\$PATH"
 
 $ENV_SETUP
 EOF
